@@ -145,11 +145,11 @@ app.post("/register", async (req, res) => {
       
     // check if user already exist
     // Validate if user exist in our database
-    //const oldUser = await User.findOne({ email });
+    const oldUser = db.collection("credentials").where("email", "==", req.body.email).get()
 
-    /*if (oldUser) {
+    if (oldUser) {
       return res.status(409).send("User Already Exist. Please Login");
-    }*/
+    }
 
     //Encrypt user password
     encryptedPassword = await bcrypt.hash(password, 10);
