@@ -10,6 +10,7 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const admin = require("firebase-admin");
 const app = express();
+
 require("dotenv").config();
 var loggedIn = false;
 app.use(express.static("static"));
@@ -26,8 +27,15 @@ app.engine("html", require("ejs").renderFile);
 app.use(express.static("static"))
 app.use(express.urlencoded({extended:true}))
 app.use(bodyParser.json())
-app.use(cors())
+app.use(cors({ origin: '*', optionsSuccessStatus: 200 }))
 app.use(cookieParser());
+app.use(function(req, res, next) {
+   res.header("Access-Control-Allow-Origin", "*");
+   res.header("Access-Control-Allow-Headers", "*");
+  res.header("Access-Control-Expose-Headers", "*")
+   //"Origin, X-Requested-With, Content-Type, Accept" x-access-token
+   next();
+ });
 const auth = require("./middleware/auth");
 
 app.get('/', (req,res) => {
@@ -67,8 +75,7 @@ app.post('/create', async(req,res) => {
         res.sendStatus(401)
       }
   } else {
-    res.sendStatus(401)
-    res.send("Serial Number is wrong")
+    res.status(401).send("Serial Number is wrong");
   }
   
 })
@@ -186,7 +193,6 @@ app.post("/login", async (req, res) => {
   try {
     // Get user input
     const { email, password } = req.body;
-
     // Validate user input
     if (!(email && password)) {
       res.status(400).send("All input is required");
@@ -195,7 +201,6 @@ app.post("/login", async (req, res) => {
     const responseData = await db.collection("credentials").doc(req.body.email).get();
     let data = responseData.data();
     console.log('This is responseData' + JSON.stringify(data))
-
     if (data.email=="lisastriker@gmail.com" && await bcrypt.compare(password, data.password)) {
       // Create token
       const token = jwt.sign(
@@ -205,19 +210,16 @@ app.post("/login", async (req, res) => {
           expiresIn: "2h",
         }
       );
-
-      // save user token
-      //user.token = token;
-
+      res.status(200).json(token)
       // user
-      res.status(200).json(token);
+    } else {
+      res.status(400).send("Invalid Credentials");
     }
-    res.status(400).send("Invalid Credentials");
   } catch (err) {
     console.log(err);
   }
-  // Our register logic ends here
 });
+
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`Listening on PORT ${PORT}`)
