@@ -59,6 +59,7 @@ app.post('/create', async(req,res) => {
   if(serialNumbers.includes(req.body.serialNumber)){
     try{
       const userJson = {
+        id : req.body.id,
         serialNumber : req.body.serialNumber,
         firstName : req.body.firstName,
         lastName : req.body.lastName,
@@ -96,9 +97,9 @@ app.get('/read/all', auth, async(req,res) => {
 })
 
 //Find info pertaining to warranty serial number
-app.get("/read/:id",async(req,res) => {
+app.get("/read/:serial",async(req,res) => {
   try{
-    const userRef = db.collection("users").doc(req.params.id)
+    const userRef = db.collection("users").doc(req.params.serial)
     const response = await userRef.get();
     res.send(response.data());
   } catch(error){
@@ -106,12 +107,25 @@ app.get("/read/:id",async(req,res) => {
   }
 })
 
+app.get("/read/serial/:id", async(req,res) => {
+  try{
+    const id = req.params.id
+    const users = db.collection("users")
+    const query = await users.where("id", "==", req.params.id).get()
+    query.forEach(doc => {
+      res.send(doc.data())
+    });
+  }
+  catch(error){
+    res.send(error)
+  }
+})
 //Search email function
 app.get("/email", async(req,res) => {
   try{
     const email = req.body.email
     const users = db.collection("users")
-    const query = await users.where("email", "==", req.body.email).get()
+    const query = await users.where("id", "==", req.body.email).get()
     query.forEach(doc => {
       res.send(doc.data())
     });
