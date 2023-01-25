@@ -107,14 +107,17 @@ app.get("/read/:serial",async(req,res) => {
   }
 })
 
-app.get("/read/serial/:id", async(req,res) => {
+app.get("/id", async(req,res) => {
   try{
-    const id = req.params.id
+    const arrayOfData = []
+    const id = parseInt(req.body.id)
     const users = db.collection("users")
-    const query = await users.where("id", "==", req.params.id).get()
+    const query = await users.where("id", "==", id).get()
     query.forEach(doc => {
-      res.send(doc.data())
+      arrayOfData.push(doc.data())
+      console.log(arrayOfData)
     });
+    res.send(arrayOfData)
   }
   catch(error){
     res.send(error)
@@ -123,12 +126,14 @@ app.get("/read/serial/:id", async(req,res) => {
 //Search email function
 app.get("/email", async(req,res) => {
   try{
+    const arrayOfData = []
     const email = req.body.email
     const users = db.collection("users")
-    const query = await users.where("id", "==", req.body.email).get()
+    const query = await users.where("email", "==", email).get()
     query.forEach(doc => {
-      res.send(doc.data())
+      arrayOfData.push(doc.data())
     });
+    res.send(arrayOfData)
   }
   catch(error){
     res.send(error)
