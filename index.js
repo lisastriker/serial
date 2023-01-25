@@ -107,10 +107,10 @@ app.get("/read/:serial",async(req,res) => {
   }
 })
 
-app.get("/id", async(req,res) => {
+app.get("/userid", async(req,res) => {
   try{
     const arrayOfData = []
-    const id = parseInt(req.body.id)
+    const id = req.body.id
     const users = db.collection("users")
     const query = await users.where("id", "==", id).get()
     query.forEach(doc => {
