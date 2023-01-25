@@ -107,10 +107,10 @@ app.get("/read/:serial",async(req,res) => {
   }
 })
 
-app.get("/userid", async(req,res) => {
+app.get("/userid/:id", async(req,res) => {
   try{
     const arrayOfData = []
-    const id = req.body.id
+    const id = parseInt(req.params.id);
     const users = db.collection("users")
     const query = await users.where("id", "==", id).get()
     query.forEach(doc => {
@@ -124,7 +124,7 @@ app.get("/userid", async(req,res) => {
   }
 })
 //Search email function
-app.get("/email", async(req,res) => {
+app.post("/email", async(req,res) => {
   try{
     const arrayOfData = []
     const email = req.body.email
@@ -132,8 +132,8 @@ app.get("/email", async(req,res) => {
     const query = await users.where("email", "==", email).get()
     query.forEach(doc => {
       arrayOfData.push(doc.data())
+      res.send(doc.data())
     });
-    res.send(arrayOfData)
   }
   catch(error){
     res.send(error)
