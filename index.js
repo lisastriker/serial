@@ -107,6 +107,47 @@ app.get("/read/:serial",async(req,res) => {
   }
 })
 
+
+app.post("/units", async (req,res) => {
+  try{
+    const arrayOfData = []
+    const unitsJson = {
+      store:req.body.store,
+      deductUnits:req.body.deductUnits,
+      addUnits:req.body.addUnits,
+      date:new Date().toString()
+    }
+    const add = db.collection("store").add(unitsJson)
+    const store = db.collection("store")
+    const query = await store.where("store", "==", req.body.store).get()
+    query.forEach(doc => {
+      arrayOfData.push(doc.data())
+      console.log(arrayOfData)
+    });
+    res.send(arrayOfData);
+    console.log(arrayOfData)
+  }catch(error){
+    res.send(error)
+  }
+
+})
+
+app.post("/getAllUnitFromStore", async (req,res) => {
+  try{
+    const arrayOfData = []
+    const storeName = req.body.store
+    const store = db.collection("store")
+    const query = await store.where("store", "==", storeName).get()
+    query.forEach(doc => {
+      arrayOfData.push(doc.data())
+      console.log(arrayOfData)
+    });
+    res.send(arrayOfData);
+  }
+  catch{}
+})
+
+
 app.get("/userid/:id", async(req,res) => {
   try{
     const arrayOfData = []
@@ -194,7 +235,7 @@ app.post("/register", async (req, res) => {
       { user_id: user._id, email },
       process.env.TOKEN_KEY,
       {
-        expiresIn: "2h",
+        expiresIn: "1m",
       }
     );
 

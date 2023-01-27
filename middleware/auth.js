@@ -2,7 +2,26 @@ const jwt = require("jsonwebtoken");
 
 const config = process.env;
 
-function verifyToken(req,res,next){
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const accessTokenSecret = 'teawithmel';
+  if (authHeader) {
+      const token = authHeader.split(' ')[1];
+
+      jwt.verify(token, accessTokenSecret, (err, user) => {
+          if (err) {
+              return res.sendStatus(403);
+          }
+
+          req.user = user;
+          next();
+      });
+  } else {
+      res.sendStatus(401);
+  }
+};
+
+/*function verifyToken(req,res,next){
   //Auth header value = > send token into header
 
   const bearerHeader = req.headers['authorization'];
